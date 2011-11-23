@@ -1,0 +1,27 @@
+name = Transpartisan Center
+description = Tableless multi-column valid theme.
+core = 6.x
+engine = phptemplate
+stylesheets[all][] = style.css
+
+
+; Information added by drupal.org packaging script on 2009-11-06
+version = "6.x-1.0"
+core = "6.x"
+project = "trans"
+datestamp = "1257502503"
+
+regions[content_slider]	= Content Slider
+regions[left]           = Left Sidebar
+regions[right]          = Right Sidebar
+regions[content_top]		= Content Top
+regions[content_bottom]	= Content Bottom
+regions[footer]         = Footer
+regions[closure_region]	= Closure
+
+
+
+features[] = logo
+features[] = favicon
+features[] = primary_links
+features[] = secondary_links
