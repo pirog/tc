@@ -1,5 +1,5 @@
 ﻿/*
-Copyright (c) 2003-2010, CKSource - Frederico Knabben. All rights reserved.
+Copyright (c) 2003-2011, CKSource - Frederico Knabben. All rights reserved.
 For licensing, see LICENSE.html or http://ckeditor.com/license
 */
 
@@ -98,7 +98,7 @@ CKEDITOR.plugins.add( 'dialogadvtab',
 						type : 'select',
 						label : lang.langDir,
 						'default' : '',
-						style : 'width:110px',
+						style : 'width:100%',
 						items :
 						[
 							[ lang.notSet, '' ],
@@ -122,7 +122,7 @@ CKEDITOR.plugins.add( 'dialogadvtab',
 		{
 			contents = [];
 
-			if ( tabConfig.id )
+			if ( tabConfig.styles )
 			{
 				contents.push(
 					{
@@ -131,8 +131,6 @@ CKEDITOR.plugins.add( 'dialogadvtab',
 						type : 'text',
 						label : lang.styles,
 						'default' : '',
-
-						onChange : function(){},
 
 						getStyle : function( name, defaultValue )
 						{
@@ -159,7 +157,7 @@ CKEDITOR.plugins.add( 'dialogadvtab',
 								styles += name + ': ' + value;
 							}
 
-							this.setValue( styles, true );
+							this.setValue( styles, 1 );
 
 						},
 
