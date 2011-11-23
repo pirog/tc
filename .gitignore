@@ -3,6 +3,7 @@
 sites/*/files/*
 files/*
 settings.php
+civicrm.settings.php
 
 # Compiled source #
 ###################
