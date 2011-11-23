@@ -4,6 +4,7 @@ sites/*/files/*
 files/*
 settings.php
 civicrm.settings.php
+.htaccess
 
 # Compiled source #
 ###################
