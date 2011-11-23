@@ -1,4 +1,4 @@
-// $Id: README.txt,v 1.3 2010/07/15 15:43:01 anrikun Exp $
+// $Id: README.txt,v 1.1.2.3 2011/01/23 11:05:56 anrikun Exp $
 
 CKEDITOR SWF - ENHANCED FLASH EMBEDDING PLUGIN
 http://drupal.org/project/ckeditor_swf

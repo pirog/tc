@@ -1,5 +1,5 @@
 <?php
-// $Id: ckeditor_swf.admin.inc,v 1.1 2010/07/15 15:43:01 anrikun Exp $
+// $Id: ckeditor_swf.admin.inc,v 1.3.2.2 2011/01/23 11:05:56 anrikun Exp $
 
 /**
  * @file
@@ -76,6 +76,17 @@ function ckeditor_swf_admin_form_validate($form, &$form_state) {
     ob_end_clean();
     if (!is_array($players)) {
       form_error($elements, t('!name must return an array.', array('!name' => $elements['#title'])));
+    }
+    else {
+      foreach ($players as $mime => $player) {
+        if (!is_array($player) || !array_key_exists('path', $player) || !array_key_exists('fileName', $player)) {
+          form_error($elements, t('The players configuration is invalid.'));
+          return;
+        }
+        elseif (!file_exists($path = $player['path'])) {
+          form_error($elements, t('The path %path does not exist.', array('%path' => $path)));
+        }
+      }
     }
   }
 }

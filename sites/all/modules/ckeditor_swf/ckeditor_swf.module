@@ -1,5 +1,5 @@
 <?php
-// $Id: ckeditor_swf.module,v 1.9 2010/07/15 15:43:01 anrikun Exp $
+// $Id: ckeditor_swf.module,v 1.2.2.8 2011/01/29 23:45:09 anrikun Exp $
 
 /**
  * @file
@@ -42,7 +42,7 @@ function ckeditor_swf_getinfo() {
   $info = @getimagesize($url);
   if ($info) {
     if ($info['mime'] == 'application/x-shockwave-flash') {
-      $output = '{mime:"application/x-shockwave-flash", width:'.$info[0].', height:'.$info[1].'}';
+      $output = '{"mime":"application/x-shockwave-flash", "width":'. $info[0] .', "height":'. $info[1] .'}';
     }
   }
   else {
@@ -51,15 +51,15 @@ function ckeditor_swf_getinfo() {
     if ($filename && ckeditor_swf_getid3_load()) {
       $getid3 = new getID3();
       $info = $getid3->analyze($filename);
-      if (isset($info['mime_type'])) {
-        switch ($info['mime_type']) {
-          case 'video/x-flv':
-            $output = '{mime:"video/x-flv", width:'.$info['video']['resolution_x'].', height:'.$info['video']['resolution_y'].'}';
-            break;
-          case 'audio/mpeg':
-            $output = '{mime:"audio/mpeg"}';
-            break;
-          //TODO: add support for other mime types?
+      if (isset($info['mime_type'], $info['fileformat'])) {
+        $mime = $info['mime_type'];
+        $format = $info['fileformat'];
+        $prefix = substr($mime, 0, 6);
+        if (isset($info['video']['resolution_x'], $info['video']['resolution_y']) && (($prefix == 'video/') || ($mime = 'video/'. $format))) {
+          $output = '{"mime":"'. $mime .'", "width":'. $info['video']['resolution_x'] .', "height":'. $info['video']['resolution_y'] .'}';
+        }
+        elseif (isset($info['audio']) && (($prefix == 'audio/') || ($mime = 'audio/'. $format))) {
+          $output = '{"mime":"'. $mime .'"}';
         }
       }
     }
@@ -291,20 +291,33 @@ function ckeditor_swf_trim($str) {
 
 function ckeditor_swf_filename($absolute_url) {
   global $base_url;
-  $base = $base_url.'/';
-  $len = strlen($base);
-  if (substr($absolute_url, 0, $len) != $base) return FALSE;
-  $path = substr($absolute_url, $len - 1);
-  if (isset($_SERVER['SCRIPT_FILENAME'])) {
-    $filename = dirname($_SERVER['SCRIPT_FILENAME']).$path;
+  $prefix = $base_url.'/';
+  $len = strlen($prefix);
+  if (substr($absolute_url, 0, $len) != $prefix) return FALSE;
+  $path = substr($absolute_url, $len);
+
+  if (variable_get('file_downloads', FILE_DOWNLOADS_PUBLIC) == FILE_DOWNLOADS_PRIVATE) {
+    $mode = variable_get('language_negotiation', LANGUAGE_NEGOTIATION_NONE);
+    if ($mode == LANGUAGE_NEGOTIATION_PATH_DEFAULT || $mode == LANGUAGE_NEGOTIATION_PATH) {
+      $languages = language_list('enabled');
+      $languages = $languages[1];
+      $args = explode('/', $path);
+      $prefix = array_shift($args);
+      foreach ($languages as $language) {
+        if (!empty($language->prefix) && $language->prefix == $prefix) {
+          $path = implode('/', $args);
+          break;
+        }
+      }
+    }
+
+    $prefix = 'system/files/';
+    $len = strlen($prefix);
+    if (substr($path, 0, $len) != $prefix) return FALSE;
+    $path = substr($path, $len);
   }
-  else {
-    $filename = realpath('./').$path;
-  }
-  if (file_exists($filename)) {
-    return $filename;
-  }
-  return FALSE;
+
+  return file_create_path($path);
 }
 
 function ckeditor_swf_getid3_load() {

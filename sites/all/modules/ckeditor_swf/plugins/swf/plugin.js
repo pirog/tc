@@ -1,4 +1,4 @@
-// $Id: plugin.js,v 1.5 2010/07/13 17:04:30 anrikun Exp $
+// $Id: plugin.js,v 1.2.4.5 2011/01/23 11:05:56 anrikun Exp $
 
 /**
  * @file
@@ -153,6 +153,10 @@
       var url;
       if (!reset && dialog.player) {
         src = dialog.loadedFlashvars[dialog.player.fileName]; // A possible player was detected.
+        if (dialog.player.jsonName) {
+          eval('var obj = ' + dialog.loadedFlashvars[dialog.player.jsonName] + ';');
+          src = obj[dialog.player.fileName];
+        }
       }
       var url = getAbsoluteUrl(dialog, src);
       $.getJSON(Drupal.settings.ckeditor_swf.getinfo_path, {src: url}, function(data) {
@@ -174,6 +178,9 @@
               dialog.srcObj.setValue(src);
               dialog.srcObj.setInitValue();
               delete dialog.loadedFlashvars[dialog.player.fileName];
+              if (dialog.player.jsonName) {
+                delete dialog.loadedFlashvars[dialog.player.jsonName];
+              }
               for (var name in dialog.loadedFlashvars) {
                 if (dialog.hiddenFlashvars.propertyIsEnumerable(name)) {
                   dialog.hiddenFlashvars[name] = dialog.loadedFlashvars[name];
@@ -399,7 +406,9 @@
 
           // Try to detect any embed or object tag that has Flash parameters.
           var fakeImage = this.getSelectedElement();
-          if (fakeImage && fakeImage.getAttribute('_cke_real_element_type') && (fakeImage.getAttribute('_cke_real_element_type' ) == 'flash')) {
+          if (fakeImage
+           && (fakeImage.data && fakeImage.data('cke-real-element-type') && fakeImage.data('cke-real-element-type') == 'flash'
+            || fakeImage.getAttribute('_cke_real_element_type') && fakeImage.getAttribute('_cke_real_element_type') == 'flash')) {
             this.fakeImage = fakeImage;
             var realElement = editor.restoreRealElement(fakeImage);
             var objectNode = null;
@@ -443,7 +452,7 @@
                   break;
                 }
               }
-              if (found && flashvars[player.fileName]) {
+              if (found && (flashvars[player.fileName] || player.jsonName && flashvars[player.jsonName])) {
                 this.player = player;
               }
             }
@@ -742,6 +751,10 @@
               if (dialog.hiddenFlashvars && dialog.player) {
                 delete flashvars[dialog.player.fileName];
                 flashvars = mergeObjects(dialog.hiddenFlashvars, flashvars);
+                if (dialog.player.jsonName) {
+                  flashvars = {};
+                  flashvars[dialog.player.jsonName] = '{"' + dialog.player.fileName + '":"' + dialog.hiddenFlashvars[dialog.player.fileName] + '"}';
+                }
               }
               var pairs = [];
               for (var name in flashvars) {
